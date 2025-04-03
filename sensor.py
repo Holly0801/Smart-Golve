@@ -4,8 +4,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Dense, Conv1D, MaxPooling1D, Flatten
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import Dense, Conv1D, MaxPooling1D, Flatten
 from sklearn.metrics import accuracy_score, classification_report
 
 # 1. 加载数据
@@ -48,3 +50,18 @@ knn_model.fit(X_train_features, y_train)
 y_pred_knn = knn_model.predict(X_test_features)
 print("KNN Accuracy:", accuracy_score(y_test, y_pred_knn))
 print("KNN Classification Report:\n", classification_report(y_test, y_pred_knn))
+
+# 7. CNN模型
+X_train_cnn = np.expand_dims(X_train_features, axis=2)
+X_test_cnn = np.expand_dims(X_test_features, axis=2)
+
+model = Sequential([
+    Conv1D(32, 2, activation='relu', input_shape=(5, 1)),
+    Flatten(),
+    Dense(3, activation='softmax')
+])
+
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.fit(X_train_cnn, y_train, epochs=10, batch_size=16, verbose=1)
+_, cnn_accuracy = model.evaluate(X_test_cnn, y_test)
+print(f"CNN Accuracy: {cnn_accuracy}")
